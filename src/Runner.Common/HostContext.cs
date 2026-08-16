@@ -425,13 +425,30 @@ namespace GitHub.Runner.Common
                     break;
 
                 case WellKnownDirectory.Work:
-                    var configurationStore = GetService<IConfigurationStore>();
-                    RunnerSettings settings = configurationStore.GetSettings();
-                    ArgUtil.NotNull(settings, nameof(settings));
-                    ArgUtil.NotNullOrEmpty(settings.WorkFolder, nameof(settings.WorkFolder));
+                    // The RUNNER_WORKDIR environment variable takes precedence
+                    // over the work folder stored during configuration. When
+                    // RUNNER_NAME is also present, the work directory is scoped
+                    // per runner: $RUNNER_WORKDIR/$RUNNER_NAME.
+                    var workFolder = Environment.GetEnvironmentVariable("RUNNER_WORKDIR");
+                    if (string.IsNullOrEmpty(workFolder))
+                    {
+                        var configurationStore = GetService<IConfigurationStore>();
+                        RunnerSettings settings = configurationStore.GetSettings();
+                        ArgUtil.NotNull(settings, nameof(settings));
+                        ArgUtil.NotNullOrEmpty(settings.WorkFolder, nameof(settings.WorkFolder));
+                        workFolder = settings.WorkFolder;
+                    }
+                    else
+                    {
+                        var runnerName = Environment.GetEnvironmentVariable("RUNNER_NAME");
+                        if (!string.IsNullOrEmpty(runnerName))
+                        {
+                            workFolder = Path.Combine(workFolder, runnerName);
+                        }
+                    }
                     path = Path.GetFullPath(Path.Combine(
                         GetDirectory(WellKnownDirectory.Root),
-                        settings.WorkFolder));
+                        workFolder));
                     break;
 
                 default:

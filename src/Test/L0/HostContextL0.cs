@@ -307,6 +307,89 @@ namespace GitHub.Runner.Common.Tests
                 logFile: Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $"trace_{nameof(HostContextL0)}_{testName}.log"));
         }
 
+        [Fact]
+        [Trait("Level", "L0")]
+        [Trait("Category", "Common")]
+        public void GetWorkDirectoryPrefersEnvironmentVariable()
+        {
+            try
+            {
+                // Arrange.
+                Setup();
+                Environment.SetEnvironmentVariable("RUNNER_NAME", null);
+                string workFolder = Path.Combine(Path.GetTempPath(), $"runner_work_{Guid.NewGuid():N}");
+                Environment.SetEnvironmentVariable("RUNNER_WORKDIR", workFolder);
+
+                // Act.
+                string workDirectory = _hc.GetDirectory(WellKnownDirectory.Work);
+
+                // Assert.
+                Assert.Equal(Path.GetFullPath(workFolder), workDirectory);
+            }
+            finally
+            {
+                // Cleanup.
+                Environment.SetEnvironmentVariable("RUNNER_WORKDIR", null);
+                Teardown();
+            }
+        }
+
+        [Fact]
+        [Trait("Level", "L0")]
+        [Trait("Category", "Common")]
+        public void GetWorkDirectoryResolvesRelativeEnvironmentVariableAgainstRoot()
+        {
+            try
+            {
+                // Arrange.
+                Setup();
+                Environment.SetEnvironmentVariable("RUNNER_NAME", null);
+                string workFolder = $"runner_work_{Guid.NewGuid():N}";
+                Environment.SetEnvironmentVariable("RUNNER_WORKDIR", workFolder);
+
+                // Act.
+                string workDirectory = _hc.GetDirectory(WellKnownDirectory.Work);
+
+                // Assert.
+                string expected = Path.GetFullPath(Path.Combine(_hc.GetDirectory(WellKnownDirectory.Root), workFolder));
+                Assert.Equal(expected, workDirectory);
+            }
+            finally
+            {
+                // Cleanup.
+                Environment.SetEnvironmentVariable("RUNNER_WORKDIR", null);
+                Teardown();
+            }
+        }
+
+        [Fact]
+        [Trait("Level", "L0")]
+        [Trait("Category", "Common")]
+        public void GetWorkDirectoryAppendsRunnerNameWhenPresent()
+        {
+            try
+            {
+                // Arrange.
+                Setup();
+                string workFolder = Path.Combine(Path.GetTempPath(), $"runner_work_{Guid.NewGuid():N}");
+                Environment.SetEnvironmentVariable("RUNNER_WORKDIR", workFolder);
+                Environment.SetEnvironmentVariable("RUNNER_NAME", "runner-01");
+
+                // Act.
+                string workDirectory = _hc.GetDirectory(WellKnownDirectory.Work);
+
+                // Assert.
+                Assert.Equal(Path.GetFullPath(Path.Combine(workFolder, "runner-01")), workDirectory);
+            }
+            finally
+            {
+                // Cleanup.
+                Environment.SetEnvironmentVariable("RUNNER_WORKDIR", null);
+                Environment.SetEnvironmentVariable("RUNNER_NAME", null);
+                Teardown();
+            }
+        }
+
         private void Teardown()
         {
             _hc?.Dispose();
