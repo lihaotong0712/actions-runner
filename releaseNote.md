@@ -1,4 +1,5 @@
 ## What's Changed
+* Add cuntom tools to runner container by @lihaotong0712
 * Prefer using environment variables $RUNNER_WORKDIR/$RUNNER_NAME to define workFolder in runner container by @lihaotong0712
 * Canceled background steps should not impact job result by @lokesh755 in https://github.com/actions/runner/pull/4482
 * Report actions archive size in telemetry. by @TingluoHuang in https://github.com/actions/runner/pull/4509
