@@ -45,13 +45,22 @@ ENV ImageOS=ubuntu24
 
 # 'gpg-agent' and 'software-properties-common' are needed for the 'add-apt-repository' command that follows
 RUN apt update -y \
-    && apt install -y --no-install-recommends sudo lsb-release gpg-agent software-properties-common curl jq unzip \
+    && apt install -y --no-install-recommends sudo lsb-release gpg-agent software-properties-common curl wget ca-certificates \
+    jq bc make shellcheck zip unzip 7zip gzip aria2 rsync pigz xz-utils pv shfmt clang-format python3-pip python3-venv python-is-python3 docker-compose-v2 \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure git-core/ppa based on guidance here:  https://git-scm.com/download/linux
 RUN add-apt-repository ppa:git-core/ppa \
     && apt update -y \
     && apt install -y git \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+    | sudo tee /usr/share/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+    | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+    && apt update -y \
+    && apt install -y gh \
     && rm -rf /var/lib/apt/lists/*
 
 RUN adduser --disabled-password --gecos "" --uid 1001 runner \
