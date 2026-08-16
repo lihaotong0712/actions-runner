@@ -1,4 +1,5 @@
 ## What's Changed
+* Prefer using environment variables $RUNNER_WORKDIR/$RUNNER_NAME to define workFolder in runner container by @lihaotong0712
 * Canceled background steps should not impact job result by @lokesh755 in https://github.com/actions/runner/pull/4482
 * Report actions archive size in telemetry. by @TingluoHuang in https://github.com/actions/runner/pull/4509
 * Bump actions/checkout from 6 to 7 by @dependabot[bot] in https://github.com/actions/runner/pull/4511
@@ -26,7 +27,7 @@
 * @bdehamer made their first contribution in https://github.com/actions/runner/pull/4527
 * @philip-gai made their first contribution in https://github.com/actions/runner/pull/4538
 
-**Full Changelog**: https://github.com/actions/runner/compare/v2.335.0...v2.336.0
+**Full Changelog**: https://github.com/lihaotong0712/actions-runner/compare/v2.336.0...v2.336.0-envdir
 
 _Note: Actions Runner follows a progressive release policy, so the latest release might not be available to your enterprise, organization, or repository yet.
 To confirm which version of the Actions Runner you should expect, please view the download instructions for your enterprise, organization, or repository.
